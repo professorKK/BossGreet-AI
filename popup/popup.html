@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 打招呼助手</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- 顶部标题栏 -->
+    <header class="header">
+      <div class="header-logo">
+        <img class="logo-icon" src="../icons/icon48.png" alt="logo" />
+        <span class="logo-text">AI 打招呼</span>
+      </div>
+      <button class="btn-icon" id="toggleSettings" title="设置" aria-label="打开设置">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- 设置面板（可折叠） -->
+    <section class="settings-panel" id="settingsPanel" aria-hidden="true">
+      <div class="settings-inner">
+
+        <div class="field-group">
+          <label class="field-label">AI 提供商</label>
+          <div class="provider-tabs">
+            <button class="provider-tab active" data-provider="minimax">MiniMax</button>
+            <button class="provider-tab" data-provider="deepseek">DeepSeek</button>
+          </div>
+        </div>
+
+        <!-- MiniMax 配置 -->
+        <div class="provider-config" id="configMinimax">
+          <div class="field-group">
+            <label class="field-label" for="minimaxApiKey">API Key</label>
+            <div class="input-wrap">
+              <input type="password" id="minimaxApiKey" class="input" placeholder="sk-..." autocomplete="off" />
+              <button class="btn-eye" data-target="minimaxApiKey" title="显示/隐藏">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="minimaxModel">模型</label>
+            <select id="minimaxModel" class="select">
+              <option value="MiniMax-M3">MiniMax-M3（默认，最强推理）</option>
+              <option value="MiniMax-M2.7">MiniMax-M2.7（60 TPS）</option>
+              <option value="MiniMax-M2.7-highspeed">MiniMax-M2.7-highspeed（极速 100 TPS）</option>
+              <option value="MiniMax-M2.5">MiniMax-M2.5（高性价比）</option>
+              <option value="MiniMax-M2.5-highspeed">MiniMax-M2.5-highspeed（极速）</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- DeepSeek 配置 -->
+        <div class="provider-config hidden" id="configDeepseek">
+          <div class="field-group">
+            <label class="field-label" for="deepseekApiKey">API Key</label>
+            <div class="input-wrap">
+              <input type="password" id="deepseekApiKey" class="input" placeholder="sk-..." autocomplete="off" />
+              <button class="btn-eye" data-target="deepseekApiKey" title="显示/隐藏">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">模型</label>
+            <div class="input disabled-input">deepseek-chat</div>
+          </div>
+        </div>
+
+        <button class="btn btn-save" id="saveSettings">保存设置</button>
+        <p class="save-hint" id="saveHint"></p>
+      </div>
+    </section>
+
+    <!-- 主体内容 -->
+    <main class="main">
+
+      <!-- 简历上传区 -->
+      <section class="section">
+        <div class="section-header">
+          <span class="section-title">我的简历</span>
+          <span class="resume-badge" id="resumeBadge" style="display:none"></span>
+        </div>
+        <label class="upload-area" id="uploadArea" for="resumeInput">
+          <input type="file" id="resumeInput" accept=".pdf,.md,.txt,.markdown" style="display:none" />
+          <div class="upload-content" id="uploadContent">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span class="upload-text">点击上传简历</span>
+            <span class="upload-hint">支持 .pdf · .md · .txt</span>
+          </div>
+        </label>
+      </section>
+
+      <!-- JD 提取区 -->
+      <section class="section">
+        <div class="section-header">
+          <span class="section-title">职位描述</span>
+          <button class="btn btn-sm btn-outline" id="extractJD">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.22"/>
+            </svg>
+            提取当前页
+          </button>
+        </div>
+        <textarea class="jd-preview" id="jdPreview" placeholder="打开职位详情页后，点击「提取当前页」；也可手动粘贴或编辑职位描述"></textarea>
+      </section>
+
+      <!-- 生成按钮 -->
+      <button class="btn btn-generate" id="generateBtn" disabled>
+        <span class="btn-text">生成打招呼</span>
+        <span class="btn-loading" id="btnLoading" style="display:none">
+          <span class="spinner"></span>生成中...
+        </span>
+      </button>
+
+      <!-- 结果区 -->
+      <section class="result-section" id="resultSection" style="display:none">
+        <div class="result-header">
+          <span class="result-label">打招呼话术</span>
+          <div class="result-actions">
+            <button class="btn btn-sm btn-ghost" id="regenerateBtn" title="重新生成">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.22"/>
+              </svg>
+            </button>
+            <button class="btn btn-sm btn-copy" id="copyBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              复制
+            </button>
+          </div>
+        </div>
+        <div class="result-text" id="resultText"></div>
+      </section>
+
+      <!-- 错误提示 -->
+      <div class="error-msg" id="errorMsg" style="display:none"></div>
+
+    </main>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

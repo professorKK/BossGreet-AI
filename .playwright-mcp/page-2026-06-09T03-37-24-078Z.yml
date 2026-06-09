@@ -1,0 +1,420 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link "BOSS直聘" [ref=e6] [cursor=pointer]:
+        - /url: https://www.zhipin.com/
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "首页" [ref=e10] [cursor=pointer]:
+            - /url: https://www.zhipin.com/
+        - listitem [ref=e11]:
+          - link "职位" [ref=e12] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/geek/jobs
+        - list [ref=e13]:
+          - listitem [ref=e14]:
+            - link "公司" [ref=e15] [cursor=pointer]:
+              - /url: https://www.zhipin.com/gongsi/
+        - list [ref=e16]:
+          - listitem [ref=e17]:
+            - link "校园" [ref=e18] [cursor=pointer]:
+              - /url: https://www.zhipin.com/school/
+          - listitem [ref=e20]:
+            - link "海归" [ref=e21] [cursor=pointer]:
+              - /url: https://www.zhipin.com/returnee_jobs/
+        - listitem [ref=e22]:
+          - link "APP" [ref=e23] [cursor=pointer]:
+            - /url: https://app.zhipin.com/
+        - listitem [ref=e24]:
+          - link "有了" [ref=e25] [cursor=pointer]:
+            - /url: https://youle.zhipin.com/recommend/selected/
+        - listitem [ref=e26]:
+          - link "海外" [ref=e27] [cursor=pointer]:
+            - /url: https://www.zhipin.com/overseas/
+        - listitem [ref=e28]:
+          - link "无障碍专区" [ref=e29] [cursor=pointer]:
+            - /url: https://www.zhipin.com/accessible_job/
+      - generic [ref=e30]:
+        - generic:
+          - paragraph [ref=e32]:
+            - textbox "搜索职位、公司" [ref=e33]
+          - button "搜索" [ref=e34] [cursor=pointer]
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - link "我要招聘" [ref=e38] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/user/?intent=1
+          - link "我要找工作" [ref=e39] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/user/?intent=0
+        - link "登录/注册" [ref=e40] [cursor=pointer]:
+          - /url: https://www.zhipin.com/web/user/
+    - generic [ref=e41]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e47]: 最新
+          - heading "半导体 CIM/MES 开发工程师" [level=1] [ref=e49]
+          - paragraph [ref=e50]:
+            - link "广州" [ref=e51] [cursor=pointer]:
+              - /url: /guangzhou/
+            - text: 3-5年 本科
+          - generic [ref=e53]:
+            - link "感兴趣" [ref=e54] [cursor=pointer]:
+              - /url: javascript:;
+            - link "立即沟通" [ref=e56] [cursor=pointer]:
+              - /url: javascript:;
+        - generic [ref=e57]:
+          - generic [ref=e59] [cursor=pointer]: ...
+          - generic [ref=e60]:
+            - generic [ref=e61]: 五险一金
+            - generic [ref=e62]: 补充医疗保险
+            - generic [ref=e63]: 定期体检
+            - generic [ref=e64]: 加班补助
+            - generic [ref=e65]: 全勤奖
+            - generic [ref=e66]: 节日福利
+            - generic [ref=e67]: 交通补助
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e72]:
+            - heading "各大行业职位任你选" [level=3] [ref=e74]
+            - text: 正在加载中
+          - generic [ref=e75]:
+            - paragraph [ref=e76]: 公司基本信息
+            - generic [ref=e77]:
+              - link "北软网络科技" [ref=e78] [cursor=pointer]:
+                - /url: /gongsi/79a221494b4f25791XR53Ny_E1Q~.html
+              - link "北软网络科技" [ref=e79] [cursor=pointer]:
+                - /url: /gongsi/79a221494b4f25791XR53Ny_E1Q~.html
+            - paragraph [ref=e80]: 不需要融资
+            - paragraph [ref=e82]: 20-99人
+            - paragraph [ref=e84]:
+              - link "计算机服务" [ref=e86] [cursor=pointer]:
+                - /url: /i100023/
+            - link "查看全部职位" [ref=e87] [cursor=pointer]:
+              - /url: /gongsi/job/79a221494b4f25791XR53Ny_E1Q~.html
+          - link [ref=e89] [cursor=pointer]:
+            - /url: https://app.zhipin.com/
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e93]:
+              - link "微 信扫码分享" [ref=e94] [cursor=pointer]:
+                - /url: javascript:;
+              - link "举 报" [ref=e95] [cursor=pointer]:
+                - /url: javascript:;
+                - text: 举
+                - generic [ref=e96]: 报
+            - heading "职位描 述" [level=3] [ref=e98]
+            - list [ref=e99]:
+              - listitem [ref=e100]: C++
+              - listitem [ref=e101]: C
+              - listitem [ref=e102]: 数据库 开发经验
+              - listitem [ref=e103]: Boost
+              - listitem [ref=e104]: 嵌入 式软件经验
+              - listitem [ref=e105]: MySQL
+              - listitem [ref=e106]: Redis
+              - listitem [ref=e107]: STL
+              - listitem [ref=e108]: Linux开发/部署经验
+              - listitem [ref=e109]: Python
+              - listitem [ref=e110]: 上位机开发经验
+            - generic [ref=e111]:
+              - text: 岗位职责：负责国内多家半导体晶圆厂 CIM/MES 系统的功能开发、文档编写、测试、Bug 修复及客户支持；参与需求评审、单元测试、客户培训等工作。
+              - text: 任职要求：
+              - text: "3"
+            - generic [ref=e112]:
+              - heading "刘先生 刚刚活跃" [level=2] [ref=e114]:
+                - text: 刘先生
+                - generic [ref=e116]: 刚刚活跃
+              - generic [ref=e117]:
+                - text: 北软网络科技
+                - emphasis [ref=e118]: ·
+                - text: 人事专员
+          - generic [ref=e119]:
+            - heading "竞争力分析" [level=3] [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e123]: 加载中...
+                - generic [ref=e124]:
+                  - text: 个人综合排名：
+                  - generic [ref=e125]:
+                    - text: 在
+                    - img [ref=e126]
+                    - text: 人中排名第
+                    - img [ref=e127]
+              - generic [ref=e128]:
+                - emphasis [ref=e131]: 一般
+                - emphasis [ref=e133]: 良好
+                - emphasis [ref=e135]: 优秀
+                - emphasis [ref=e137]: 极好
+          - generic [ref=e138]:
+            - heading "BOSS 安全提示" [level=3] [ref=e139]
+            - paragraph [ref=e140]:
+              - text: BOSS直聘严禁用人单位和招聘者用户做出任何损害求职者合法权益的违法违规行为，包括但不限于扣押求职者证件、收取求职者财物、向求职者集资、让求职者入股、诱导求职者异地入职、异地参加培训、违法违规使用求职者简历等，您一旦发现此类行为，
+              - link "请立即举报" [ref=e141] [cursor=pointer]:
+                - /url: javascript:;
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - heading "公司介绍" [level=3] [ref=e144]
+              - generic [ref=e145]: 公司于2015年成立，旨在依托北软丰富的客户资源以及研发能力，将优质资源引入西安，促进西安软件行业的发展。公司致力于软件研发及软件对外出口业务，有成熟的外包业务承接经验和交付流程，目前服务于国内外几十个知名跨国企业。
+            - generic [ref=e146]:
+              - heading "工商信息" [level=3] [ref=e147]
+              - generic [ref=e148]:
+                - list [ref=e149]:
+                  - listitem [ref=e150]:
+                    - generic [ref=e151]: 公司名称
+                    - text: 西安北软网络科技有限公司
+                  - listitem [ref=e152]:
+                    - generic [ref=e153]: 法定代表人
+                    - text: 樊奇
+                  - listitem [ref=e154]:
+                    - generic [ref=e155]: 成立日期
+                    - text: 2016-01-14
+                  - listitem [ref=e156]:
+                    - generic [ref=e157]: 企业类型
+                    - text: 有限责任公司（自然人投资或控股的法人独资）
+                  - listitem [ref=e158]:
+                    - generic [ref=e159]: 经营状态
+                    - text: 开业
+                  - listitem [ref=e160]:
+                    - generic [ref=e161]: 注册资金
+                    - text: 1000万人民币
+                - link "查看全部" [ref=e162] [cursor=pointer]:
+                  - /url: /gongsi/79a221494b4f25791XR53Ny_E1Q~.html
+            - generic [ref=e163]:
+              - heading "工作地址" [level=3] [ref=e164]
+              - generic [ref=e165]:
+                - generic [ref=e166]: 广州黄埔区粤芯半导体技术股份有限公司
+                - generic [ref=e167] [cursor=pointer]:
+                  - img "公司地址" [ref=e168]
+                  - paragraph [ref=e169]: 点击查看地图
+          - generic [ref=e171]:
+            - heading "更多职位 看过该职位的人还看了" [level=3] [ref=e172]:
+              - link "更多职位" [ref=e173] [cursor=pointer]:
+                - /url: /c101280100-p100102/e_105-y_4_5_6/
+              - text: 看过该职位的人还看了
+            - list [ref=e174]:
+              - listitem [ref=e175]:
+                - link "C++开发工程师(J11697) 南方测绘 广州" [ref=e176] [cursor=pointer]:
+                  - /url: /job_detail/d1be906b9bd8f77f0nd629i0FVVR.html
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: C++开发工程师(J11697)
+                    - paragraph
+                  - generic [ref=e179]:
+                    - generic [ref=e182]: 南方测绘
+                    - generic [ref=e183]: 广州
+              - listitem [ref=e184]:
+                - link "C++开发工程师(J11697) 南方测绘 广州" [ref=e185] [cursor=pointer]:
+                  - /url: /job_detail/7d5d8b2e778959cf0nd62t-5ElRY.html
+                  - generic [ref=e186]:
+                    - generic [ref=e187]: C++开发工程师(J11697)
+                    - paragraph
+                  - generic [ref=e188]:
+                    - generic [ref=e191]: 南方测绘
+                    - generic [ref=e192]: 广州
+              - listitem [ref=e193]:
+                - link "数据智能与机器人算法开发工程师 VIRDYN(虚拟动力) 广州" [ref=e194] [cursor=pointer]:
+                  - /url: /job_detail/2518b327a5cf3b7b0nZy3dW8F1NU.html
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: 数据智能与机器人算法开发工程师
+                    - paragraph
+                  - generic [ref=e197]:
+                    - generic [ref=e200]: VIRDYN(虚拟动力)
+                    - generic [ref=e201]: 广州
+              - listitem [ref=e202]:
+                - link "上位机软件工程师 微远基因 广州" [ref=e203] [cursor=pointer]:
+                  - /url: /job_detail/fab689e5157048e80nZy3Ny-GVNQ.html
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: 上位机软件工程师
+                    - paragraph
+                  - generic [ref=e206]:
+                    - generic [ref=e209]: 微远基因
+                    - generic [ref=e210]: 广州
+              - listitem [ref=e211]:
+                - link "传奇lua技术 乐清市颖铭网络有... 广州" [ref=e212] [cursor=pointer]:
+                  - /url: /job_detail/15a935e32c2a3bd40nZ80tu6ElRY.html
+                  - generic [ref=e213]:
+                    - generic [ref=e214]: 传奇lua技术
+                    - paragraph
+                  - generic [ref=e215]:
+                    - generic [ref=e218]: 乐清市颖铭网络有...
+                    - generic [ref=e219]: 广州
+              - listitem [ref=e220]:
+                - link "OH物联网应用开发 金其利 广州" [ref=e221] [cursor=pointer]:
+                  - /url: /job_detail/3f9b474943f316fb0nZ93du4GFFS.html
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: OH物联网应用开发
+                    - paragraph
+                  - generic [ref=e224]:
+                    - generic [ref=e227]: 金其利
+                    - generic [ref=e228]: 广州
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - heading "精选职位" [level=3] [ref=e231]
+              - list [ref=e233]:
+                - listitem [ref=e234]:
+                  - list [ref=e235]:
+                    - listitem [ref=e236]:
+                      - link "机器视觉开发工程师（MJ000145） 瑞松科技 广州" [ref=e237] [cursor=pointer]:
+                        - /url: /job_detail/8aa19456f2bc0f870nd62N6-GFBT.html
+                        - generic [ref=e238]:
+                          - generic [ref=e239]: 机器视觉开发工程师（MJ000145）
+                          - paragraph
+                        - generic [ref=e240]:
+                          - generic [ref=e243]: 瑞松科技
+                          - generic [ref=e244]: 广州
+                    - listitem [ref=e245]:
+                      - link "nx二次开发工程师 比亚迪汽车工业 广州" [ref=e246] [cursor=pointer]:
+                        - /url: /job_detail/0954167e48f406d90nZ929S7EVRR.html
+                        - generic [ref=e247]:
+                          - generic [ref=e248]: nx二次开发工程师
+                          - paragraph
+                        - generic [ref=e249]:
+                          - generic [ref=e252]: 比亚迪汽车工业
+                          - generic [ref=e253]: 广州
+                    - listitem [ref=e254]:
+                      - link "高级c++开发工程师 中数通(广东) 广州" [ref=e255] [cursor=pointer]:
+                        - /url: /job_detail/8e5c5d5cf4314abc0nd63dm4FFNQ.html
+                        - generic [ref=e256]:
+                          - generic [ref=e257]: 高级c++开发工程师
+                          - paragraph
+                        - generic [ref=e258]:
+                          - generic [ref=e261]: 中数通(广东)
+                          - generic [ref=e262]: 广州
+                    - listitem [ref=e263]:
+                      - link "嵌入式软件开发工程师 深圳联友科技有限... 广州" [ref=e264] [cursor=pointer]:
+                        - /url: /job_detail/5fb0d8e299b11dcf0nZ_3N67GFZW.html
+                        - generic [ref=e265]:
+                          - generic [ref=e266]: 嵌入式软件开发工程师
+                          - paragraph
+                        - generic [ref=e267]:
+                          - generic [ref=e270]: 深圳联友科技有限...
+                          - generic [ref=e271]: 广州
+                    - listitem [ref=e272]:
+                      - link "C++开发工程师 图哇科技 广州" [ref=e273] [cursor=pointer]:
+                        - /url: /job_detail/6af8094f838c26e10nZ52t27EFpU.html
+                        - generic [ref=e274]:
+                          - generic [ref=e275]: C++开发工程师
+                          - paragraph
+                        - generic [ref=e276]:
+                          - generic [ref=e279]: 图哇科技
+                          - generic [ref=e280]: 广州
+                    - listitem [ref=e281]:
+                      - link "地面站开发工程师 驰越智能 广州" [ref=e282] [cursor=pointer]:
+                        - /url: /job_detail/9dbb4ed4eee29d1b0nZ539m9GFRR.html
+                        - generic [ref=e283]:
+                          - generic [ref=e284]: 地面站开发工程师
+                          - paragraph
+                        - generic [ref=e285]:
+                          - generic [ref=e288]: 驰越智能
+                          - generic [ref=e289]: 广州
+            - generic [ref=e298]:
+              - generic [ref=e299]:
+                - generic [ref=e301] [cursor=pointer]: 广州
+                - paragraph [ref=e303]:
+                  - textbox "搜索职位、公司" [ref=e304]: C/C++
+              - button "搜索" [ref=e305] [cursor=pointer]
+          - generic [ref=e307]:
+            - generic [ref=e308]:
+              - generic [ref=e309] [cursor=pointer]: 城市招聘
+              - generic [ref=e310] [cursor=pointer]: 热门职位
+              - generic [ref=e311] [cursor=pointer]: 推荐公司
+              - generic [ref=e312] [cursor=pointer]: 热门企业
+            - generic [ref=e314]:
+              - link "阿里地区招聘" [ref=e315] [cursor=pointer]:
+                - /url: /c101140700/
+              - link "马鞍山招聘" [ref=e316] [cursor=pointer]:
+                - /url: /c101220500/
+              - link "常州招聘" [ref=e317] [cursor=pointer]:
+                - /url: /c101191100/
+              - link "潍坊招聘" [ref=e318] [cursor=pointer]:
+                - /url: /c101120600/
+              - link "昭通招聘" [ref=e319] [cursor=pointer]:
+                - /url: /c101290700/
+              - link "怀化招聘" [ref=e320] [cursor=pointer]:
+                - /url: /c101251200/
+              - link "焦作招聘" [ref=e321] [cursor=pointer]:
+                - /url: /c101181100/
+              - link "新乡招聘" [ref=e322] [cursor=pointer]:
+                - /url: /c101180300/
+              - link "海西蒙古族藏族自治州招聘" [ref=e323] [cursor=pointer]:
+                - /url: /c101150800/
+              - link "黑河招聘" [ref=e324] [cursor=pointer]:
+                - /url: /c101050600/
+          - generic [ref=e325]:
+            - link "首页" [ref=e326] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e327]:
+              - link "广州招聘" [ref=e328] [cursor=pointer]:
+                - /url: /c101280100/
+              - text: ·
+              - link "C/C++招聘" [ref=e329] [cursor=pointer]:
+                - /url: /p100102/
+            - link "广州C/C++招聘" [ref=e330] [cursor=pointer]:
+              - /url: /c101280100-p100102/
+            - link "北软网络科技C/C++招聘" [ref=e331] [cursor=pointer]:
+              - /url: /job_detail/12f208340126b7cc0nB90ti4EVtV.html
+          - paragraph [ref=e332]: 页面更新时间：2026-06-09
+  - generic [ref=e334]:
+    - generic [ref=e335]:
+      - paragraph [ref=e336]: 企业服务热线和算法/未成年人等举报渠道 400 065 5799
+      - paragraph [ref=e337]: 老年人直连热线400 661 6030
+      - paragraph [ref=e338]: 工作日 8:00 - 22:00
+      - paragraph [ref=e339]: 休息日 8:00 - 22:00
+      - paragraph [ref=e340]:
+        - link [ref=e341] [cursor=pointer]:
+          - /url: https://www.weibo.com/bosszhipin
+        - link [ref=e342] [cursor=pointer]:
+          - /url: javascript:;
+        - link [ref=e343] [cursor=pointer]:
+          - /url: https://app.zhipin.com
+        - link "boss直聘电脑端下载" [ref=e344] [cursor=pointer]:
+          - /url: https://www.zhipin.com/desktop/
+    - generic [ref=e345]:
+      - generic [ref=e346]:
+        - term [ref=e347]: 企业服务
+        - definition [ref=e348]:
+          - link "职位搜索" [ref=e349] [cursor=pointer]:
+            - /url: https://www.zhipin.com/job_detail/
+          - link "BOSS直聘APP" [ref=e350] [cursor=pointer]:
+            - /url: https://app.zhipin.com/
+          - link "投资者关系 Investor Relations" [ref=e351] [cursor=pointer]:
+            - /url: https://ir.zhipin.com/
+          - link "直品公益基金会" [ref=e352] [cursor=pointer]:
+            - /url: https://gongyi.zhipin.com/home
+      - generic [ref=e353]:
+        - term [ref=e354]: 使用与帮助
+        - definition [ref=e355]:
+          - link "协议与规则" [ref=e356] [cursor=pointer]:
+            - /url: https://about.zhipin.com/agreement
+          - link "隐私政策" [ref=e357] [cursor=pointer]:
+            - /url: https://about.zhipin.com/agreement?id=personalinfopro
+          - link "防骗指南" [ref=e358] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/common/protocol/cheat-guide.html
+          - link "使用帮助" [ref=e359] [cursor=pointer]:
+            - /url: https://www.zhipin.com/web/common/protocol/use-help.html
+      - generic [ref=e360]:
+        - term [ref=e361]: 联系BOSS直聘
+        - definition [ref=e362]:
+          - paragraph [ref=e363]: 北京华品博睿网络技术有限公司
+          - paragraph [ref=e364]: 公司地址 北京市朝阳区太阳宫中路16号院1号楼18层1801内09
+          - paragraph [ref=e365]:
+            - text: 违法和不良信息举报邮箱/未成年人举报渠道
+            - link "jubao@kanzhun.com" [ref=e366] [cursor=pointer]:
+              - /url: mailto:jubao@kanzhun.com
+    - paragraph [ref=e368]:
+      - generic [ref=e369]: Copyright © 2026 BOSS直聘
+      - link "京ICP备14013441号-5" [ref=e371] [cursor=pointer]:
+        - /url: https://beian.miit.gov.cn/
+      - generic [ref=e372]: 京ICP证150923号
+      - link "电子营业执照" [ref=e374] [cursor=pointer]:
+        - /url: https://www.zhipin.com/web/common/protocol/business-license.html
+      - link "京公网安备11010502032801" [ref=e376] [cursor=pointer]:
+        - /url: http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502032801
+      - link "朝阳网警" [ref=e378] [cursor=pointer]:
+        - /url: https://sdwj.zhipin.com/web/index.html
+      - link "人力资源服务许可证" [ref=e380] [cursor=pointer]:
+        - /url: https://www.zhipin.com/web/common/protocol/hr-service.html
+      - link "网上有害信息举报专区" [ref=e382] [cursor=pointer]:
+        - /url: https://www.12377.cn
+      - generic [ref=e383] [cursor=pointer]: 朝阳区人社局监督电话
+      - link "算法备案信息" [ref=e385] [cursor=pointer]:
+        - /url: https://about.zhipin.com/agreement?id=b9f73536711c4928bde84337cb53aa91
+  - text: 正在加载中 正在加载中
+  - iframe
+  - text: 前往App 与BOSS随时沟通

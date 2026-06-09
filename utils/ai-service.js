@@ -1,0 +1,133 @@
+/**
+ * AI 服务封装
+ * 支持 MiniMax（Anthropic 兼容格式）和 DeepSeek（OpenAI 兼容格式）
+ */
+
+export const MINIMAX_MODELS = [
+  { value: 'MiniMax-M3', label: 'MiniMax-M3（默认，最强推理）' },
+  { value: 'MiniMax-M2.7', label: 'MiniMax-M2.7（自迭代，60 TPS）' },
+  { value: 'MiniMax-M2.7-highspeed', label: 'MiniMax-M2.7-highspeed（极速，100 TPS）' },
+  { value: 'MiniMax-M2.5', label: 'MiniMax-M2.5（高性价比，60 TPS）' },
+  { value: 'MiniMax-M2.5-highspeed', label: 'MiniMax-M2.5-highspeed（极速，100 TPS）' }
+];
+
+const MINIMAX_BASE_URL = 'https://api.minimaxi.com/anthropic/v1/messages';
+const DEEPSEEK_BASE_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+const SYSTEM_PROMPT = `你是一位求职沟通高级助手，帮助"求职者本人"在招聘平台（如BOSS直聘）上向招聘方（HR/Boss）发送第一句打招呼语。
+
+【关键角色定义，务必牢记】
+- "我的简历"中的人 = 求职者本人 = 你要扮演的说话人（第一人称"我"）
+- "职位描述(JD)"是招聘方发布的岗位，JD里出现的人名是招聘方/HR，不是求职者
+- 你要生成的是：求职者主动发给招聘方的打招呼语
+
+【输出要求】
+1. 以求职者第一人称"我"的口吻书写
+2. 50字以内，简洁诚恳，突出我（求职者）与该岗位最匹配的1-2个亮点
+3. 不要替招聘方说话，不要把简历主人当成招聘方
+4. 不要编造简历中没有的经历
+5. 不要使用对方（招聘方）的姓名来称呼，开头可用"您好"即可
+6. 直接输出打招呼语正文，不要任何前缀、解释或引号
+7. 要抓住JD每一条招聘要求，总结该岗位的重点结合简历去生成打招呼语，不要偏离JD的重点`;
+
+/**
+ * 调用 MiniMax API（Anthropic 兼容格式）
+ */
+export async function callMiniMax({ apiKey, model = 'MiniMax-M3', jd, resume }) {
+  const prompt = buildPrompt(jd, resume);
+
+  const body = {
+    model,
+    max_tokens: 200,
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: [{ type: 'text', text: prompt }]
+      }
+    ]
+  };
+
+  // M3 关闭 thinking 加快响应
+  if (model === 'MiniMax-M3') {
+    body.thinking = { type: 'disabled' };
+  }
+
+  const response = await fetch(MINIMAX_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`MiniMax API 错误 ${response.status}: ${errText || response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  // 提取文本内容（跳过 thinking 块）
+  const textBlock = data.content?.find(b => b.type === 'text');
+  if (!textBlock?.text) {
+    throw new Error('MiniMax 返回格式异常，未找到文本内容');
+  }
+
+  return textBlock.text.trim();
+}
+
+/**
+ * 调用 DeepSeek API（OpenAI 兼容格式）
+ */
+export async function callDeepSeek({ apiKey, jd, resume }) {
+  const prompt = buildPrompt(jd, resume);
+
+  const body = {
+    model: 'deepseek-chat',
+    max_tokens: 200,
+    temperature: 0.7,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: prompt }
+    ]
+  };
+
+  const response = await fetch(DEEPSEEK_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`DeepSeek API 错误 ${response.status}: ${errText || response.statusText}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) {
+    throw new Error('DeepSeek 返回格式异常，未找到文本内容');
+  }
+
+  return text.trim();
+}
+
+function buildPrompt(jd, resume) {
+  return `下面是我要应聘的【职位描述】（由招聘方发布）：
+"""
+${jd.slice(0, 2000)}
+"""
+
+下面是【我（求职者本人）的简历】：
+"""
+${resume.slice(0, 2000)}
+"""
+
+请以我（求职者）的第一人称口吻，生成一句发给招聘方的打招呼语，突出我与该岗位的匹配点。`;
+}

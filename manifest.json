@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "BOSS AI 打招呼助手",
+  "version": "1.0.0",
+  "description": "根据当前职位 JD 和你的简历，自动生成一句个性化打招呼话术",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "AI 打招呼助手"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://api.minimaxi.com/*",
+    "https://api.deepseek.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.zhipin.com/*",
+        "https://zhipin.com/*",
+        "https://www.lagou.com/*",
+        "https://www.liepin.com/*",
+        "https://www.51job.com/*",
+        "https://job.toutiao.com/*"
+      ],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["utils/*", "libs/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
