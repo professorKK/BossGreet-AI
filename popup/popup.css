@@ -35,11 +35,15 @@
 
 html {
   font-size: 14px;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 body {
   width: 360px;
   min-height: 480px;
+  height: auto;
+  overflow: visible;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -47,11 +51,24 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 独立标签页打开时不受弹窗 600px 限制 */
+html.standalone {
+  max-height: none;
+  overflow-y: visible;
+}
+
+body.standalone {
+  width: 420px;
+  max-width: 90vw;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
 /* ─── App Layout ────────────────────────────────────── */
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: auto;
 }
 
 /* ─── Header ────────────────────────────────────────── */
@@ -469,72 +486,62 @@ body {
   font-weight: 600;
 }
 
-/* ─── Upload Area ─────────────────────────────────────── */
-.upload-area {
-  display: block;
-  border: 1.5px dashed var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all 0.2s;
-  background: var(--bg-card);
+/* ─── Resume Row ─────────────────────────────────────── */
+.section-compact {
+  margin-bottom: -4px;
 }
 
-.upload-area:hover {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-}
-
-.upload-area.has-file {
-  border-style: solid;
-  border-color: var(--accent);
-  background: var(--accent-dim);
-}
-
-.upload-area.dragover {
-  border-color: var(--accent-hi);
-  background: rgba(255,107,53,0.15);
-  transform: scale(1.01);
-}
-
-.upload-content {
-  padding: 20px;
+.resume-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  color: var(--text-3);
-  transition: color 0.2s;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.upload-area:hover .upload-content,
-.upload-area.has-file .upload-content {
-  color: var(--accent);
+#uploadResume {
+  flex-shrink: 0;
 }
 
-.upload-text {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.upload-hint {
-  font-size: 11px;
-  color: var(--text-3);
-}
-
-.resume-badge {
+.resume-file {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  min-width: 0;
+  max-width: calc(100% - 90px);
+  padding: 4px 4px 4px 10px;
   background: var(--accent-dim);
   border: 1px solid var(--accent);
-  border-radius: 20px;
-  color: var(--accent);
-  font-size: 11px;
-  max-width: 180px;
+  border-radius: var(--radius-sm);
+  color: var(--accent-hi);
+}
+
+.resume-file-name {
+  font-size: 12px;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.btn-resume-remove {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.btn-resume-remove:hover {
+  color: var(--red);
+  background: rgba(248, 113, 113, 0.12);
 }
 
 /* ─── JD Preview ──────────────────────────────────────── */
@@ -546,7 +553,6 @@ body {
   border-radius: var(--radius);
   padding: 10px 12px;
   min-height: 90px;
-  max-height: 180px;
   overflow-y: auto;
   font-family: var(--font-body);
   font-size: 12.5px;
@@ -572,6 +578,29 @@ body {
 
 .jd-preview.has-content {
   border-color: var(--border-hi);
+}
+
+.btn-expand {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  color: var(--text-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.btn-expand:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.jd-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ─── Result Section ─────────────────────────────────── */

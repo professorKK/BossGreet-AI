@@ -34,9 +34,10 @@ const els = {
   saveSettings:     $('saveSettings'),
   saveHint:         $('saveHint'),
   resumeInput:      $('resumeInput'),
-  uploadArea:       $('uploadArea'),
-  uploadContent:    $('uploadContent'),
-  resumeBadge:      $('resumeBadge'),
+  uploadResume:     $('uploadResume'),
+  resumeFile:       $('resumeFile'),
+  resumeFileName:   $('resumeFileName'),
+  deleteResume:     $('deleteResume'),
   matchScore:       $('matchScore'),
   matchScoreValue:  $('matchScoreValue'),
   jdPreview:        $('jdPreview'),
@@ -47,13 +48,21 @@ const els = {
   resultText:       $('resultText'),
   copyBtn:          $('copyBtn'),
   regenerateBtn:    $('regenerateBtn'),
+  expandPopup:      $('expandPopup'),
   errorMsg:         $('errorMsg')
 };
 
+const isStandalone = new URLSearchParams(location.search).has('standalone');
+
 // ─── 初始化 ───────────────────────────────────────────────
 async function init() {
+  if (isStandalone) {
+    document.documentElement.classList.add('standalone');
+    document.body.classList.add('standalone');
+  }
   await loadStoredSettings();
   bindEvents();
+  restoreJdPreviewHeight();
   setMatchScoreUI({ score: 0 });
 }
 
@@ -78,7 +87,7 @@ async function loadStoredSettings() {
   if (data.resumeText) {
     state.resumeText = data.resumeText;
     state.resumeFileName = data.resumeFileName || '已上传简历';
-    showResumeBadge(state.resumeFileName);
+    showResumeUI(state.resumeFileName);
   }
 
   updateGenerateBtn();
@@ -113,25 +122,19 @@ function bindEvents() {
   // 保存设置
   els.saveSettings.addEventListener('click', saveSettings);
 
-  // 简历上传
+  els.uploadResume.addEventListener('click', () => {
+    if (!els.uploadResume.disabled) els.resumeInput.click();
+  });
+
   els.resumeInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) handleResumeFile(file);
   });
 
-  // 拖拽上传
-  els.uploadArea.addEventListener('dragover', (e) => {
+  els.deleteResume.addEventListener('click', (e) => {
     e.preventDefault();
-    els.uploadArea.classList.add('dragover');
-  });
-  els.uploadArea.addEventListener('dragleave', () => {
-    els.uploadArea.classList.remove('dragover');
-  });
-  els.uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    els.uploadArea.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) handleResumeFile(file);
+    e.stopPropagation();
+    deleteResume();
   });
 
   // 一键提取 + 生成
@@ -150,6 +153,18 @@ function bindEvents() {
 
   // 复制结果
   els.copyBtn.addEventListener('click', copyResult);
+
+  // 新标签页打开（解除弹窗高度限制）
+  if (els.expandPopup) {
+    els.expandPopup.addEventListener('click', openStandalone);
+    if (isStandalone) els.expandPopup.style.display = 'none';
+  }
+
+  // 记住 JD 框拖拽高度
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => saveJdPreviewHeight());
+    ro.observe(els.jdPreview);
+  }
 }
 
 // ─── 提供商切换 ────────────────────────────────────────────
@@ -188,10 +203,48 @@ function showSaveHint(msg, isError = false) {
 }
 
 // ─── 简历处理 ─────────────────────────────────────────────
+function setUploadResumeLabel(text) {
+  const label = els.uploadResume.querySelector('.upload-resume-label');
+  if (label) label.textContent = text;
+}
+
+function setUploadResumeLoading(loading) {
+  els.uploadResume.disabled = loading;
+  setUploadResumeLabel(loading ? '解析中...' : '添加简历');
+}
+
+function showResumeUI(name) {
+  els.resumeFile.style.display = 'inline-flex';
+  els.resumeFileName.textContent = name;
+  els.resumeFileName.title = name;
+  els.uploadResume.disabled = false;
+  setUploadResumeLabel('添加简历');
+}
+
+function resetResumeUI() {
+  els.resumeFile.style.display = 'none';
+  els.resumeFileName.textContent = '';
+  els.resumeFileName.title = '';
+  els.uploadResume.disabled = false;
+  setUploadResumeLabel('添加简历');
+  els.resumeInput.value = '';
+}
+
+async function deleteResume() {
+  hideError();
+  state.resumeText = '';
+  state.resumeFileName = '';
+  state.matchScore = 0;
+
+  await chrome.storage.local.remove(['resumeText', 'resumeFileName']);
+  resetResumeUI();
+  setMatchScoreUI({ score: 0 });
+  updateGenerateBtn();
+}
+
 async function handleResumeFile(file) {
   hideError();
-  const content = els.uploadContent;
-  content.innerHTML = '<span class="spinner" style="border-color:var(--accent-dim);border-top-color:var(--accent)"></span><span class="upload-text">解析中...</span>';
+  setUploadResumeLoading(true);
 
   try {
     const text = await parseResumeFile(file);
@@ -203,32 +256,17 @@ async function handleResumeFile(file) {
       resumeFileName: file.name
     });
 
-    showResumeBadge(file.name);
-    els.uploadArea.classList.add('has-file');
-    content.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      <span class="upload-text">${escapeHtml(file.name)}</span>
-      <span class="upload-hint">点击重新上传</span>
-    `;
+    showResumeUI(file.name);
     updateGenerateBtn();
     scheduleMatchScore();
   } catch (err) {
     showError(err.message);
-    content.innerHTML = `
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-      </svg>
-      <span class="upload-text">点击上传简历</span>
-      <span class="upload-hint">支持 .pdf · .md · .txt</span>
-    `;
+    if (state.resumeText) {
+      showResumeUI(state.resumeFileName);
+    } else {
+      resetResumeUI();
+    }
   }
-}
-
-function showResumeBadge(name) {
-  els.resumeBadge.style.display = 'inline-flex';
-  els.resumeBadge.textContent = `📄 ${name}`;
 }
 
 // ─── JD 提取 ──────────────────────────────────────────────
@@ -524,6 +562,22 @@ function hideError() {
 // ─── 工具函数 ─────────────────────────────────────────────
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function saveJdPreviewHeight() {
+  const h = els.jdPreview.offsetHeight;
+  if (h >= 90) chrome.storage.local.set({ jdPreviewHeight: h });
+}
+
+async function restoreJdPreviewHeight() {
+  const { jdPreviewHeight } = await chrome.storage.local.get('jdPreviewHeight');
+  if (jdPreviewHeight && jdPreviewHeight >= 90) {
+    els.jdPreview.style.height = `${jdPreviewHeight}px`;
+  }
+}
+
+function openStandalone() {
+  chrome.tabs.create({ url: chrome.runtime.getURL('popup/popup.html?standalone=1') });
 }
 
 // ─── 启动 ─────────────────────────────────────────────────

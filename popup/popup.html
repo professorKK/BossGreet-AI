@@ -90,32 +90,35 @@
     <!-- 主体内容 -->
     <main class="main">
 
-      <!-- 简历上传区 -->
-      <section class="section">
-        <div class="section-header">
-          <span class="section-title">我的简历</span>
-          <span class="resume-badge" id="resumeBadge" style="display:none"></span>
-        </div>
-        <label class="upload-area" id="uploadArea" for="resumeInput">
-          <input type="file" id="resumeInput" accept=".pdf,.md,.txt,.markdown" style="display:none" />
-          <div class="upload-content" id="uploadContent">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            <span class="upload-text">点击上传简历</span>
-            <span class="upload-hint">支持 .pdf · .md · .txt</span>
+      <!-- 简历 -->
+      <section class="section section-compact">
+        <div class="resume-row">
+          <input type="file" id="resumeInput" accept=".pdf,.md,.txt,.markdown" hidden />
+          <button type="button" class="btn btn-sm btn-outline" id="uploadResume" title="支持 .pdf · .md · .txt">
+            <span class="upload-resume-label">添加简历</span>
+          </button>
+          <div class="resume-file" id="resumeFile" style="display:none">
+            <span class="resume-file-name" id="resumeFileName"></span>
+            <button type="button" class="btn-resume-remove" id="deleteResume" title="删除简历" aria-label="删除简历">×</button>
           </div>
-        </label>
+        </div>
       </section>
 
       <!-- JD 提取区 -->
       <section class="section">
         <div class="section-header">
           <span class="section-title">职位描述</span>
+          <div class="jd-header-actions">
+          <button class="btn-expand" id="expandPopup" type="button" title="新标签页打开（可自由拉高编辑）">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            </svg>
+          </button>
           <div class="match-score match-low" id="matchScore" title="简历与职位契合度">
             <span class="match-score-label">契合度</span>
             <span class="match-score-value" id="matchScoreValue">0</span>
             <span class="match-score-unit">%</span>
+          </div>
           </div>
         </div>
         <textarea class="jd-preview" id="jdPreview" placeholder="点击下方按钮自动提取；也可手动粘贴或编辑职位描述"></textarea>
