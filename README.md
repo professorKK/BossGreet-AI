@@ -5,6 +5,7 @@
 
 # BOSS AI 打招呼助手 — 安装与使用（Chrome）
 
+<img align="right" src="images/demo.png" alt="插件使用效果" width="360" />
 
 ## 一、获取代码
 
@@ -53,6 +54,8 @@ git clone <仓库地址> bossAI
 生成打招呼语时，会把职位描述和简历发给所选 AI 服务商——这是功能需要，数据不会经过第三方。
 
 > 注意：不要把 Key 写进配置文件再提交 Git；若曾误提交，请到 AI 平台轮换 Key。
+
+<br clear="right" />
 
 ---
 
