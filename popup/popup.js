@@ -11,8 +11,13 @@ const state = {
   jdText: '',
   resumeText: '',
   resumeFileName: '',
-  generating: false
+  generating: false,
+  extracting: false,
+  matchScore: 0,
+  matching: false
 };
+
+let matchScoreTimer = null;
 
 // ─── DOM 节点 ─────────────────────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -32,10 +37,12 @@ const els = {
   uploadArea:       $('uploadArea'),
   uploadContent:    $('uploadContent'),
   resumeBadge:      $('resumeBadge'),
-  extractJD:        $('extractJD'),
+  matchScore:       $('matchScore'),
+  matchScoreValue:  $('matchScoreValue'),
   jdPreview:        $('jdPreview'),
   generateBtn:      $('generateBtn'),
   btnLoading:       $('btnLoading'),
+  btnLoadingText:   $('btnLoadingText'),
   resultSection:    $('resultSection'),
   resultText:       $('resultText'),
   copyBtn:          $('copyBtn'),
@@ -47,6 +54,7 @@ const els = {
 async function init() {
   await loadStoredSettings();
   bindEvents();
+  setMatchScoreUI({ score: 0 });
 }
 
 async function loadStoredSettings() {
@@ -126,20 +134,18 @@ function bindEvents() {
     if (file) handleResumeFile(file);
   });
 
-  // 提取 JD
-  els.extractJD.addEventListener('click', extractJD);
+  // 一键提取 + 生成
+  els.generateBtn.addEventListener('click', extractAndGenerate);
 
   // 手动编辑 JD 文本框时同步状态
   els.jdPreview.addEventListener('input', () => {
     state.jdText = els.jdPreview.value.trim();
     els.jdPreview.classList.toggle('has-content', !!state.jdText);
     updateGenerateBtn();
+    scheduleMatchScore();
   });
 
-  // 生成打招呼
-  els.generateBtn.addEventListener('click', generate);
-
-  // 重新生成
+  // 重新生成（沿用已有 JD）
   els.regenerateBtn.addEventListener('click', generate);
 
   // 复制结果
@@ -207,6 +213,7 @@ async function handleResumeFile(file) {
       <span class="upload-hint">点击重新上传</span>
     `;
     updateGenerateBtn();
+    scheduleMatchScore();
   } catch (err) {
     showError(err.message);
     content.innerHTML = `
@@ -225,52 +232,169 @@ function showResumeBadge(name) {
 }
 
 // ─── JD 提取 ──────────────────────────────────────────────
-async function extractJD() {
-  hideError();
-  els.extractJD.disabled = true;
-  els.extractJD.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:1.5px"></span> 提取中';
+async function extractJDFromPage() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) throw new Error('无法获取当前标签页');
+
+  let response;
+  try {
+    response = await chrome.tabs.sendMessage(tab.id, { action: 'extractJD' });
+  } catch {
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['content/content.js']
+    });
+    response = await chrome.tabs.sendMessage(tab.id, { action: 'extractJD' });
+  }
+
+  if (!response?.success) throw new Error(response?.error || 'JD 提取失败');
+  return response.jd;
+}
+
+function applyJD(jd) {
+  state.jdText = jd;
+  els.jdPreview.value = jd;
+  els.jdPreview.classList.add('has-content');
+  updateGenerateBtn();
+}
+
+// ─── 契合度评分 ────────────────────────────────────────────
+function scheduleMatchScore() {
+  clearTimeout(matchScoreTimer);
+  matchScoreTimer = setTimeout(() => { updateMatchScore(); }, 600);
+}
+
+function setMatchScoreUI({ score = 0, loading = false, error = '' } = {}) {
+  const box = els.matchScore;
+  const valueEl = els.matchScoreValue;
+
+  box.style.display = 'inline-flex';
+
+  if (loading) {
+    box.className = 'match-score match-loading';
+    valueEl.textContent = '…';
+    box.title = '正在分析契合度';
+    return;
+  }
+
+  const displayScore = score ?? 0;
+  const tier = displayScore >= 80 ? 'match-high' : displayScore >= 60 ? 'match-medium' : 'match-low';
+  box.className = `match-score ${tier}`;
+  valueEl.textContent = String(displayScore);
+  box.title = error
+    || (!state.jdText || !state.resumeText
+      ? '上传简历并提取职位描述后自动更新契合度'
+      : `简历与职位契合度 ${displayScore}%`);
+}
+
+async function updateMatchScore() {
+  if (!state.jdText || !state.resumeText) {
+    setMatchScoreUI({ score: 0 });
+    return;
+  }
+  if (state.matching) return;
+
+  const stored = await chrome.storage.local.get(['provider', 'minimaxApiKey', 'deepseekApiKey', 'minimaxModel']);
+  const provider = stored.provider || 'minimax';
+  const apiKey = provider === 'minimax' ? stored.minimaxApiKey : stored.deepseekApiKey;
+
+  if (!apiKey) {
+    setMatchScoreUI({ score: 0, error: '请先在设置中填写 API Key 后自动计算' });
+    return;
+  }
+
+  state.matching = true;
+  setMatchScoreUI({ loading: true });
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) throw new Error('无法获取当前标签页');
-
-    // 先尝试直接通信；若 content script 尚未注入则先注入再重试
-    let response;
-    try {
-      response = await chrome.tabs.sendMessage(tab.id, { action: 'extractJD' });
-    } catch {
-      // content script 未注入（扩展安装前已打开的页面），手动注入后重试
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['content/content.js']
-      });
-      response = await chrome.tabs.sendMessage(tab.id, { action: 'extractJD' });
-    }
+    const response = await chrome.runtime.sendMessage({
+      action: 'callMatchScore',
+      payload: {
+        provider,
+        apiKey,
+        model: stored.minimaxModel || 'MiniMax-M3',
+        jd: state.jdText,
+        resume: state.resumeText
+      }
+    });
 
     if (response?.success) {
-      state.jdText = response.jd;
-      els.jdPreview.value = response.jd;
-      els.jdPreview.classList.add('has-content');
-      updateGenerateBtn();
+      state.matchScore = response.score;
+      setMatchScoreUI({ score: response.score });
     } else {
-      throw new Error(response?.error || 'JD 提取失败');
+      setMatchScoreUI({ score: 0, error: response?.error || '计算失败' });
     }
   } catch (err) {
-    showError(`提取失败：${err.message}`);
+    setMatchScoreUI({ score: 0, error: err.message });
   } finally {
-    els.extractJD.disabled = false;
-    els.extractJD.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.22"/>
-      </svg>
-      提取当前页
-    `;
+    state.matching = false;
   }
 }
 
-// ─── 生成打招呼 ────────────────────────────────────────────
+// ─── 一键提取 + 生成 ────────────────────────────────────────
+async function extractAndGenerate() {
+  if (state.generating || state.extracting) return;
+  hideError();
+
+  if (!state.resumeText) {
+    showError('请先上传简历');
+    return;
+  }
+
+  const stored = await chrome.storage.local.get(['provider', 'minimaxApiKey', 'deepseekApiKey', 'minimaxModel']);
+  const provider = stored.provider || 'minimax';
+  const apiKey = provider === 'minimax' ? stored.minimaxApiKey : stored.deepseekApiKey;
+
+  if (!apiKey) {
+    showError('请先在设置中填写 API Key 并保存');
+    els.settingsPanel.classList.add('open');
+    els.settingsPanel.setAttribute('aria-hidden', 'false');
+    els.toggleSettings.classList.add('active');
+    return;
+  }
+
+  state.extracting = true;
+  setMainBtnLoading('正在提取职位...');
+
+  try {
+    const jd = await extractJDFromPage();
+    applyJD(jd);
+
+    state.extracting = false;
+    state.generating = true;
+    setMainBtnLoading('正在生成打招呼...');
+
+    const [greetingRes] = await Promise.all([
+      chrome.runtime.sendMessage({
+        action: 'callAI',
+        payload: {
+          provider,
+          apiKey,
+          model: stored.minimaxModel || 'MiniMax-M3',
+          jd: state.jdText,
+          resume: state.resumeText
+        }
+      }),
+      updateMatchScore()
+    ]);
+
+    if (greetingRes?.success) {
+      showResult(greetingRes.text);
+    } else {
+      throw new Error(greetingRes?.error || 'AI 调用失败');
+    }
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    state.extracting = false;
+    state.generating = false;
+    setMainBtnLoading(null);
+  }
+}
+
+// ─── 重新生成（沿用已有 JD）────────────────────────────────
 async function generate() {
-  if (state.generating) return;
+  if (state.generating || state.extracting) return;
   hideError();
 
   const stored = await chrome.storage.local.get(['provider', 'minimaxApiKey', 'deepseekApiKey', 'minimaxModel']);
@@ -279,7 +403,6 @@ async function generate() {
 
   if (!apiKey) {
     showError('请先在设置中填写 API Key 并保存');
-    // 自动打开设置面板
     els.settingsPanel.classList.add('open');
     els.settingsPanel.setAttribute('aria-hidden', 'false');
     els.toggleSettings.classList.add('active');
@@ -297,7 +420,7 @@ async function generate() {
   }
 
   state.generating = true;
-  setGenerating(true);
+  setMainBtnLoading('正在生成打招呼...');
 
   try {
     const response = await chrome.runtime.sendMessage({
@@ -320,15 +443,17 @@ async function generate() {
     showError(`生成失败：${err.message}`);
   } finally {
     state.generating = false;
-    setGenerating(false);
+    setMainBtnLoading(null);
   }
 }
 
-function setGenerating(loading) {
+function setMainBtnLoading(text) {
   const btnText = els.generateBtn.querySelector('.btn-text');
+  const loading = !!text;
   btnText.style.display = loading ? 'none' : '';
   els.btnLoading.style.display = loading ? 'flex' : 'none';
-  els.generateBtn.disabled = loading;
+  if (text) els.btnLoadingText.textContent = text;
+  updateGenerateBtn();
 }
 
 // ─── 结果展示 ─────────────────────────────────────────────
@@ -381,9 +506,8 @@ async function copyResult() {
 
 // ─── 更新生成按钮状态 ──────────────────────────────────────
 function updateGenerateBtn() {
-  const hasResume = !!state.resumeText;
-  const hasJD = !!state.jdText;
-  els.generateBtn.disabled = !(hasResume && hasJD) || state.generating;
+  const busy = state.generating || state.extracting;
+  els.generateBtn.disabled = !state.resumeText || busy;
 }
 
 // ─── 错误提示 ─────────────────────────────────────────────

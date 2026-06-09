@@ -112,21 +112,21 @@
       <section class="section">
         <div class="section-header">
           <span class="section-title">职位描述</span>
-          <button class="btn btn-sm btn-outline" id="extractJD">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.22"/>
-            </svg>
-            提取当前页
-          </button>
+          <div class="match-score match-low" id="matchScore" title="简历与职位契合度">
+            <span class="match-score-label">契合度</span>
+            <span class="match-score-value" id="matchScoreValue">0</span>
+            <span class="match-score-unit">%</span>
+          </div>
         </div>
-        <textarea class="jd-preview" id="jdPreview" placeholder="打开职位详情页后，点击「提取当前页」；也可手动粘贴或编辑职位描述"></textarea>
+        <textarea class="jd-preview" id="jdPreview" placeholder="点击下方按钮自动提取；也可手动粘贴或编辑职位描述"></textarea>
       </section>
 
-      <!-- 生成按钮 -->
+      <!-- 一键提取 + 生成 -->
       <button class="btn btn-generate" id="generateBtn" disabled>
-        <span class="btn-text">生成打招呼</span>
+        <span class="btn-text">提取并生成打招呼</span>
         <span class="btn-loading" id="btnLoading" style="display:none">
-          <span class="spinner"></span>生成中...
+          <span class="spinner"></span>
+          <span id="btnLoadingText">处理中...</span>
         </span>
       </button>
 

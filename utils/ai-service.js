@@ -131,3 +131,100 @@ ${resume.slice(0, 2000)}
 
 请以我（求职者）的第一人称口吻，生成一句发给招聘方的打招呼语，突出我与该岗位的匹配点。`;
 }
+
+const MATCH_SCORE_SYSTEM_PROMPT = `你是一位招聘匹配分析专家。根据职位描述(JD)和求职者简历，评估契合程度。
+
+【输出要求】
+1. 只输出一个 0-100 的整数，表示匹配百分比
+2. 不要输出任何其他文字、符号或解释
+3. 评分需实事求是，综合考虑：技能匹配、工作经验、学历要求、行业背景、岗位职责相关性
+4. 明显不匹配的岗位应给低分（如技能栈完全不同、经验年限差距大）`;
+
+function buildMatchScorePrompt(jd, resume) {
+  return `【职位描述】
+"""
+${jd.slice(0, 2000)}
+"""
+
+【求职者简历】
+"""
+${resume.slice(0, 2000)}
+"""
+
+请给出该简历与该职位的契合度百分比（0-100 整数）。`;
+}
+
+/** 从 AI 回复中解析 0-100 的匹配分数 */
+export function parseMatchScore(text) {
+  if (!text) return null;
+  const nums = text.match(/\d{1,3}/g);
+  if (!nums) return null;
+  for (const raw of nums) {
+    const n = parseInt(raw, 10);
+    if (n >= 0 && n <= 100) return n;
+  }
+  const n = parseInt(nums[0], 10);
+  return Math.min(100, Math.max(0, n));
+}
+
+export async function callMiniMaxMatchScore({ apiKey, model = 'MiniMax-M3', jd, resume }) {
+  const body = {
+    model,
+    max_tokens: 16,
+    system: MATCH_SCORE_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: [{ type: 'text', text: buildMatchScorePrompt(jd, resume) }] }]
+  };
+  if (model === 'MiniMax-M3') body.thinking = { type: 'disabled' };
+
+  const response = await fetch(MINIMAX_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`MiniMax API 错误 ${response.status}: ${errText || response.statusText}`);
+  }
+
+  const data = await response.json();
+  const textBlock = data.content?.find(b => b.type === 'text');
+  const score = parseMatchScore(textBlock?.text?.trim());
+  if (score === null) throw new Error('无法解析匹配分数');
+  return score;
+}
+
+export async function callDeepSeekMatchScore({ apiKey, jd, resume }) {
+  const body = {
+    model: 'deepseek-chat',
+    max_tokens: 16,
+    temperature: 0.2,
+    messages: [
+      { role: 'system', content: MATCH_SCORE_SYSTEM_PROMPT },
+      { role: 'user', content: buildMatchScorePrompt(jd, resume) }
+    ]
+  };
+
+  const response = await fetch(DEEPSEEK_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`DeepSeek API 错误 ${response.status}: ${errText || response.statusText}`);
+  }
+
+  const data = await response.json();
+  const score = parseMatchScore(data.choices?.[0]?.message?.content?.trim());
+  if (score === null) throw new Error('无法解析匹配分数');
+  return score;
+}
