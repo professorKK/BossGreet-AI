@@ -17,8 +17,9 @@ function Resize-Icon {
     Write-Host "Created $path ($size x $size)"
 }
 
-$src = "d:/shareKK/bossAI/zhaoPin.png"
-Resize-Icon -src $src -size 16  -path "d:/shareKK/bossAI/icons/icon16.png"
-Resize-Icon -src $src -size 48  -path "d:/shareKK/bossAI/icons/icon48.png"
-Resize-Icon -src $src -size 128 -path "d:/shareKK/bossAI/icons/icon128.png"
+$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$src = Join-Path $root "images/zhaoPin.png"
+Resize-Icon -src $src -size 16  -path (Join-Path $root "icons/icon16.png")
+Resize-Icon -src $src -size 48  -path (Join-Path $root "icons/icon48.png")
+Resize-Icon -src $src -size 128 -path (Join-Path $root "icons/icon128.png")
 Write-Host "All icons updated from zhaoPin.png!"

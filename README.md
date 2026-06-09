@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="boss.png" alt="BOSS 直聘" width="48%" />
-  <img src="lei.png" alt="猎聘" width="48%" />
+  <img src="images/boss.png" alt="BOSS 直聘" height="100" />
+  <img src="images/lei.png" alt="猎聘" height="100" />
 </p>
 
 # BOSS AI 打招呼助手 — 安装与使用（Chrome）
