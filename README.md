@@ -1,11 +1,4 @@
-<p align="center">
-  <img src="images/boss.png" alt="BOSS 直聘" height="100" />
-  <img src="images/lei.png" alt="猎聘" height="100" />
-</p>
-
 # BOSS AI 打招呼助手 — 安装与使用（Chrome）
-
-<img align="right" src="images/demo.png" alt="插件使用效果" width="360" />
 
 ## 一、获取代码
 
@@ -55,15 +48,13 @@ git clone <仓库地址> bossAI
 
 > 注意：不要把 Key 写进配置文件再提交 Git；若曾误提交，请到 AI 平台轮换 Key。
 
-<br clear="right" />
-
 ---
 
 ## 五、日常使用
 
-1. 打开支持的招聘网站，进入**职位详情页**：
-  - BOSS 直聘（zhipin.com）
-  - 猎聘（liepin.com）
+1. 打开支持的招聘网站，进入**职位详情页**：（打勾为明确支持）
+  - BOSS 直聘（zhipin.com）✅
+  - 猎聘（liepin.com）✅
   - 拉勾（lagou.com）
   - 前程无忧（51job.com）
   - 字节跳动招聘（job.toutiao.com）
