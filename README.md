@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="boss.png" alt="BOSS 直聘" width="48%" />
+  <img src="lei.png" alt="猎聘" width="48%" />
+</p>
+
 # BOSS AI 打招呼助手 — 安装与使用（Chrome）
 
 ## 一、获取代码
@@ -29,8 +34,8 @@ git clone <仓库地址> bossAI
 1. 点击工具栏扩展图标，打开弹窗
 2. 点右上角 **齿轮** 打开设置
 3. 选择 AI 提供商（MiniMax 或 DeepSeek），填入对应 **API Key**
-   - MiniMax：https://platform.minimaxi.com/
-   - DeepSeek：https://platform.deepseek.com/
+  - MiniMax：[https://platform.minimaxi.com/](https://platform.minimaxi.com/)
+  - DeepSeek：[https://platform.deepseek.com/](https://platform.deepseek.com/)
 4. 点 **保存设置**
 5. 点 **添加简历**，上传 `.pdf` / `.md` / `.txt` 简历（只需上传一次，会本地保存）
 
@@ -53,18 +58,19 @@ git clone <仓库地址> bossAI
 ## 五、日常使用
 
 1. 打开支持的招聘网站，进入**职位详情页**：
-   - BOSS 直聘（zhipin.com）
-   - 猎聘（liepin.com）
-   - 拉勾（lagou.com）
-   - 前程无忧（51job.com）
-   - 字节跳动招聘（job.toutiao.com）
+  - BOSS 直聘（zhipin.com）
+  - 猎聘（liepin.com）
+  - 拉勾（lagou.com）
+  - 前程无忧（51job.com）
+  - 字节跳动招聘（job.toutiao.com）
 2. 点击扩展图标
 3. 点 **提取并生成打招呼**
-   - 自动从页面提取职位描述（JD）
-   - 结合你的简历，AI 生成一句打招呼话术
+  - 自动从页面提取职位描述（JD）
+  - 结合你的简历，AI 生成一句打招呼话术
 4. 点 **复制**，粘贴到网站的「立即沟通 / 打招呼」输入框发送
 
 **可选操作：**
+
 - JD 提取不准时，可在弹窗里手动编辑「职位描述」后再生成
 - 点右上角展开图标，可在新标签页打开（方便拉高编辑）
 - 点 **重新生成** 可换一句话术
@@ -73,15 +79,23 @@ git clone <仓库地址> bossAI
 
 ## 六、常见问题
 
-| 问题 | 处理 |
-|------|------|
-| 按钮灰色点不了 | 先配置 API Key 并上传简历 |
-| 提取 JD 失败 | 确认在职位详情页；手动粘贴 JD 到文本框 |
-| 生成报错 | 检查 API Key 是否有效、账户是否有余额 |
-| 改代码不生效 | 扩展管理页刷新扩展 + 刷新网页 |
+
+| 问题       | 处理                      |
+| -------- | ----------------------- |
+| 按钮灰色点不了  | 先配置 API Key 并上传简历       |
+| 提取 JD 失败 | 确认在职位详情页；手动粘贴 JD 到文本框   |
+| 生成报错     | 检查 API Key 是否有效、账户是否有余额 |
+| 改代码不生效   | 扩展管理页刷新扩展 + 刷新网页        |
+
 
 ---
 
 ## 七、卸载
 
 `chrome://extensions/` → 找到「BOSS AI 打招呼助手」→ **移除**。
+
+---
+
+## 开发者
+
+**KK** · 如有疑问请发邮件至 [1018700038@qq.com](mailto:1018700038@qq.com)
