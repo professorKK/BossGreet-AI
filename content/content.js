@@ -14,7 +14,7 @@ window.__bossAIInjected = true;
 // 遇到这些关键词就截断（JD 正文之后的页面噪声）
 const NOISE_CUTOFF = [
   '工作地址', '去App', '前往App', '下载APP', '下载BOSS直聘', '微信服务号', '微博号',
-  '求职工具', '举报', '刚刚活跃', '今天活跃', '本周活跃', '本月活跃', '升级VIP',
+  '求职工具', '举报', '刚刚活跃', '今天活跃', '本周活跃', '本月活跃', '半年前活跃', '升级VIP',
   '咨询客服', '热门职位', '热门城市', '热门企业', '微信扫码分享', '一键扫码',
   '查看更多', '附近城市', '该公司其他在招职位', '相似职位',
   'BOSS 安全提示', 'BOSS安全提示', '公司介绍', '工商信息',
@@ -25,7 +25,7 @@ const BOSS_NOISE_LINES = [
   /^[：:]$/, /^职位描述$/, /^职位详情$/,
   /^继续沟通$/, /^立即沟通$/, /^感兴趣$/, /^收藏$/,
   /^聊一聊$/, /^已认证$/, /^查看全部$/,
-  /^(今天|本周|本月|刚刚)活跃$/,
+  /^(今天|本周|本月|刚刚|半年前|一年前|\d+个月前)活跃$/,
   /^[\u4e00-\u9fa5]{2,4}(先生|女士)$/,
   /^微信扫码分享$/, /^举\s*报$/,
 ];
@@ -232,7 +232,40 @@ function isSkillTagLine(line) {
   if (/^[0-9]+[、.．)]/.test(line)) return false;
   if (/^\d+[-~～]\d+年|^(本科|硕士|博士|大专|学历不限|经验不限)$/.test(line)) return false;
   if (/^[：:]$/.test(line)) return false;
+  if (/^(深圳|北京|上海|广州|杭州|成都|武汉|南京|西安|重庆)/.test(line)) return false;
   return true;
+}
+
+/** 剥离正文开头的技能标签与孤立冒号，合并为一行 */
+function peelLeadingSkillTags(lines, fromIdx = 0) {
+  const tags = [];
+  let i = fromIdx;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^[：:]$/.test(line) || line === '职位描述' || line === '职位详情') {
+      i++;
+      continue;
+    }
+    if (isSkillTagLine(line)) {
+      tags.push(line);
+      i++;
+      continue;
+    }
+    break;
+  }
+  return { tags, nextIdx: i };
+}
+
+/** 是否为招聘者信息行（姓名 / 活跃状态 / 公司·职位） */
+function isBossRecruiterLine(line, hasEnoughContent) {
+  if (!hasEnoughContent || !line) return false;
+  if (/^(刚刚|今天|本周|本月|半年前|一年前|\d+个月前)活跃$/.test(line)) return true;
+  if (/^[\u4e00-\u9fa5]{2,4}$/.test(line)) return true;
+  if (/^.+[·•].+$/.test(line) && line.length < 50
+      && /工程师|经理|专员|主管|总监|顾问|HR|hr|招聘|人事|驱动/.test(line)) {
+    return true;
+  }
+  return false;
 }
 
 /** 是否为公司介绍（非 JD 正文） */
@@ -270,31 +303,46 @@ function collectBossJDSections(root) {
   return parts.length ? parts.join('\n\n') : '';
 }
 
-/** BOSS：轻量整理 JD 正文（去空行/引号/重复标题，正文尽量原样保留） */
+/** BOSS：整理 JD 正文（合并技能标签、去噪声、截断招聘者信息） */
 function postProcessBossJD(text) {
   if (!text) return '';
 
   let t = text.replace(/[""]/g, '');
   t = t.replace(/(岗位职责[：:]\s*)+/g, '岗位职责：\n');
   t = t.replace(/(任职要求[：:]\s*)+/g, '任职要求：\n');
+  t = t.replace(/^职位描述[：:]*\s*/gm, '');
 
   const lines = t.split('\n').map(l => l.trim()).filter(Boolean);
   const firstSection = findFirstSectionIndex(lines);
+  const peelFrom = firstSection > 0 ? firstSection : 0;
+  const { tags: leadingTags, nextIdx: bodyStart } = peelLeadingSkillTags(lines, peelFrom);
   const filtered = [];
 
-  for (let i = 0; i < lines.length; i++) {
+  if (leadingTags.length > 0) {
+    filtered.push('技能要求：' + leadingTags.join('、'));
+  }
+
+  for (let i = bodyStart; i < lines.length; i++) {
     const line = lines[i];
-    if (i < firstSection) {
+    if (/^[：:]$/.test(line) || line === '职位描述' || line === '职位详情') continue;
+    if (i < firstSection && firstSection > 0) {
       if (isSkillTagLine(line)) continue;
-      if (/^[：:]$/.test(line)) continue;
     }
-    if (/^[\u4e00-\u9fa5]{2,4}(先生|女士)$/.test(line) && filtered.length > 8) break;
-    if (BOSS_NOISE_LINES.some(p => p.test(line)) && filtered.length > 8) continue;
+    if (isBossRecruiterLine(line, filtered.length > 5)) break;
+    if (/^[\u4e00-\u9fa5]{2,4}(先生|女士)$/.test(line) && filtered.length > 5) break;
+    if (BOSS_NOISE_LINES.some(p => p.test(line)) && filtered.length > 5) continue;
     filtered.push(line);
   }
 
-  while (filtered.length > 0 && /^[\u4e00-\u9fa5]{2,4}(先生|女士)$/.test(filtered[filtered.length - 1])) {
-    filtered.pop();
+  while (filtered.length > 0) {
+    const last = filtered[filtered.length - 1];
+    if (/^[\u4e00-\u9fa5]{2,4}(先生|女士)$/.test(last)
+        || isBossRecruiterLine(last, true)
+        || BOSS_NOISE_LINES.some(p => p.test(last))) {
+      filtered.pop();
+    } else {
+      break;
+    }
   }
 
   return cleanWhitespace(cutAtNoise(filtered.join('\n')));
@@ -528,8 +576,7 @@ function extractBossJD() {
 function tryExtractZhipinJD() {
   for (const fn of [extractBossJDBySelector, extractBossJD]) {
     const result = fn();
-    const final = result ? finalizeJDOutput(result) : null;
-    if (final && final.length > 50 && !looksLikeNavMenu(final)) return final;
+    if (result && result.length > 50 && !looksLikeNavMenu(result)) return result;
   }
   return null;
 }
