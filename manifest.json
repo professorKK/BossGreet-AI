@@ -34,7 +34,9 @@
         "https://www.lagou.com/*",
         "https://www.liepin.com/*",
         "https://www.51job.com/*",
-        "https://job.toutiao.com/*"
+        "https://job.toutiao.com/*",
+        "https://www.yupao.com/*",
+        "https://yupao.com/*"
       ],
       "js": ["content/content.js"],
       "run_at": "document_idle"

@@ -64,6 +64,7 @@ git clone <仓库地址> bossAI
 1. 打开支持的招聘网站，进入**职位详情页**：（打勾为明确支持）
   - BOSS 直聘（zhipin.com）✅
   - 猎聘（liepin.com）✅
+  - 鱼泡直聘（yupao.com）✅
   - 拉勾（lagou.com）
   - 前程无忧（51job.com）
   - 字节跳动招聘（job.toutiao.com）

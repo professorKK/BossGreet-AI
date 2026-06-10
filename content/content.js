@@ -90,6 +90,38 @@ const LIEPIN_MAIN_CONTENT_SELECTORS = [
 
 const LIEPIN_JD_MARKERS = /岗位职责|职位介绍|任职要求|核心职责/;
 
+// 鱼泡直聘主内容区候选
+const YUPAO_MAIN_CONTENT_SELECTORS = [
+  '[class*="job-detail"]',
+  '[class*="jobDetail"]',
+  '[class*="detail-content"]',
+  '[class*="detail"]',
+  '[class*="position"]',
+  'main',
+];
+
+// 鱼泡噪声截断词（JD 之后的内容）
+const YUPAO_NOISE_CUTOFF = [
+  '工作地址', '查看地图', '点击查看完整地图', '温馨提示', '安全提示',
+  '相似职位', '推荐职位', '猜你喜欢', '该企业其他职位', '联系我时',
+  'IP：', 'IP:',
+];
+
+// 鱼泡整行噪声（按钮/标签/统计）
+const YUPAO_NOISE_LINES = [
+  /^不合适$/, /^免登录$/, /^聊一聊$/, /^投递简历$/, /^立即沟通$/,
+  /^发送简历$/, /^继续聊$/, /^投诉$/, /^加载中$/,
+  /^收藏$/, /^举报$/, /^分享$/, /^急聘$/, /^置顶$/, /^刷新$/,
+  /^下载APP$/, /^添加求职期望$/, /^搜索$/,
+  /^职位详情[：:]?$/, /^职位亮点$/, /^职位描述$/,
+  /^招聘人数[:：]?$/, /^薪资预制[:：]?$/, /^招聘需求[:：]?$/, /^工作地点[:：]?$/,
+  /^\d+-\d+人$/, /^职位\d+天内有效$/,
+  /^[|·•]$/, /^人事经理$/, /^\d+个月内活跃$/,
+  /^[\u4e00-\u9fa5]{1,2}(先生|女士)$/,
+  /^(今天|本周|本月|刚刚|\d+天前|\d+小时前)(活跃|来过)$/,
+  /(公司|集团|工厂|事务所).{0,6}[·•].{0,12}(经理|主管|总监|招聘|人事|HR)/,
+];
+
 // 猎聘噪声截断词
 const LIEPIN_NOISE_CUTOFF = [
   '其他信息', '公司简介', '猎聘温馨提示', '上班地址', '工作地址',
@@ -732,6 +764,141 @@ function waitForLiepinJobDesc(timeout = 6000) {
   });
 }
 
+// ── 鱼泡直聘（yupao.com）──────────────────────────────────
+
+/**
+ * 鱼泡：定位详情面板文本。
+ * 搜索页左侧职位列表与右侧详情同处一个大容器，列表卡片标题可能
+ * 混入「岗位职责】」等字样，因此先锚定最后出现的「职位详情」
+ * （详情面板头部），只保留其前后内容，避免把列表卡片当成正文。
+ */
+function getYupaoDetailText(raw) {
+  if (!raw) return '';
+  const lines = raw.split('\n');
+  // 找最后出现「职位详情」的行，向前多保留几行（职位名/薪资）
+  let panelLine = -1;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (lines[i].includes('职位详情')) { panelLine = i; break; }
+  }
+  if (panelLine >= 0) return lines.slice(Math.max(0, panelLine - 4)).join('\n');
+  // 无「职位详情」头部时，取最后一个带冒号的「岗位职责：」
+  const m = [...raw.matchAll(/岗位职责\s*[：:]/g)];
+  if (m.length) return raw.slice(Math.max(0, m[m.length - 1].index - 200));
+  return raw;
+}
+
+function postProcessYupaoJD(text) {
+  if (!text) return '';
+  let t = getYupaoDetailText(text.replace(/[""]/g, ''));
+  // 从岗位职责/任职要求处开始（跳过职位亮点等元信息区与技能标签串）
+  let start = t.search(/(岗位职责|任职要求|工作内容|职位描述)\s*[：:]/);
+  if (start < 0) start = t.search(/岗位职责|任职要求|工作内容/);
+  if (start > 0) t = t.slice(start);
+  t = cutAtNoise(t, YUPAO_NOISE_CUTOFF);
+  t = filterNoiseLines(t, YUPAO_NOISE_LINES);
+  return cleanWhitespace(t);
+}
+
+function looksLikeYupaoNav(text) {
+  if (!text) return false;
+  // 筛选菜单特征：包含大量职位分类词
+  const menuHits = ['添加求职期望', '工作区域', '职位类型', '结算方式', '后端开发', '前端/移动开发']
+    .filter(k => text.includes(k));
+  return menuHits.length >= 2;
+}
+
+/** 鱼泡：提取职位标题（详情面板第一行通常是职位名） */
+function extractYupaoTitle() {
+  const titleSelectors = [
+    '[class*="job-title"]', '[class*="jobName"]', '[class*="job-name"]',
+    '[class*="position-name"]', '[class*="title"]', 'h1', 'h2',
+  ];
+  for (const sel of titleSelectors) {
+    try {
+      for (const el of document.querySelectorAll(sel)) {
+        if (!isVisible(el)) continue;
+        const title = cleanTitle((el.innerText || el.textContent || '').trim());
+        if (title.length >= 3 && title.length <= 40
+            && /工程师|开发|经理|专员|主管|总监|技术员|程序|架构|测试|运维|设计/.test(title)
+            && !isSalary(title) && !/职位详情|职位亮点/.test(title)) {
+          return title;
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+  // 兜底：详情面板头部「职位详情」之前的职位名行
+  const detail = getYupaoDetailText(getYupaoRawText());
+  for (const line of detail.split('\n').map(l => l.trim()).filter(Boolean)) {
+    if (/职位详情|岗位职责/.test(line)) break;
+    const title = cleanTitle(line);
+    if (title.length >= 3 && title.length <= 40 && !isSalary(title)
+        && /工程师|开发|经理|专员|主管|总监|技术员|程序|架构|测试|运维|设计/.test(title)) {
+      return title;
+    }
+  }
+  return '';
+}
+
+/** 鱼泡：获取候选原始文本（最佳容器或整页） */
+function getYupaoRawText() {
+  const root = findBestJDContainer(YUPAO_MAIN_CONTENT_SELECTORS, /岗位职责|任职要求/);
+  return ((root ? root.innerText : document.body.innerText) || '').trim();
+}
+
+/** 鱼泡：提取薪资/人数等标签（仅在详情面板文本内匹配，避免抓到列表卡片） */
+function extractYupaoTags() {
+  const text = getYupaoDetailText(getYupaoRawText());
+  const parts = [];
+  const salary = text.match(/(\d[\d.]*\s*-\s*\d[\d.]*\s*万?元\/月|\d+(?:\.\d+)?-\d+(?:\.\d+)?[kK万](?:·\d+薪)?)/);
+  const headcount = text.match(/招聘人数[：:]?\s*(\d+-?\d*人)/);
+  const exp = text.match(/(\d+-\d+年|\d+年以上)/);
+  if (salary) parts.push(salary[1].replace(/\s+/g, ''));
+  if (headcount) parts.push(`招${headcount[1]}`);
+  if (exp) parts.push(exp[1]);
+  return parts.slice(0, 3).join(' · ');
+}
+
+/** 鱼泡：主提取（最佳容器 → body 兜底） */
+function extractYupaoJD() {
+  let raw = getYupaoRawText();
+  if (!raw || !/岗位职责|任职要求|职位详情/.test(raw)) return null;
+
+  const jdContent = postProcessYupaoJD(raw);
+  if (jdContent.length < 30 || looksLikeYupaoNav(jdContent)) return null;
+
+  const title = extractYupaoTitle();
+  const tags = extractYupaoTags();
+  return finalizeJDOutput(formatJDResult(jdContent, title, tags), postProcessYupaoJD);
+}
+
+function tryExtractYupaoJD() {
+  const result = extractYupaoJD();
+  if (result && result.length > 50 && !looksLikeYupaoNav(result)) return result;
+  return null;
+}
+
+function waitForYupaoJobDesc(timeout = 6000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    let done = false;
+    const finish = (val) => { if (!done) { done = true; resolve(val); } };
+
+    const observer = new MutationObserver(() => {
+      const r = tryExtractYupaoJD();
+      if (r) { observer.disconnect(); finish(r); }
+      else if (Date.now() - start > timeout) { observer.disconnect(); finish(null); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(() => {
+      const r = tryExtractYupaoJD();
+      if (r) { observer.disconnect(); finish(r); }
+    }, 500);
+
+    setTimeout(() => { observer.disconnect(); finish(null); }, timeout);
+  });
+}
+
 /** 通用兜底：非 BOSS直聘 页面，移除噪声节点后提取主文本 */
 function extractGenericJD() {
   const clone = document.body.cloneNode(true);
@@ -780,14 +947,21 @@ function waitForJobDesc(timeout = 6000) {
 function buildDiagnostics() {
   const bodyText = (document.body.innerText || '');
   const isLiepin = /liepin\.com/.test(window.location.href);
+  const isYupao = /yupao\.com/.test(window.location.href);
   const lines = [];
   lines.push('【诊断信息 - 请整段复制发给开发者】');
   lines.push(`URL: ${window.location.href}`);
   lines.push(`body.innerText 总长度: ${bodyText.length}`);
 
-  const anchors = isLiepin ? LIEPIN_JD_ANCHORS : JD_ANCHORS;
-  const mainRoot = isLiepin ? getLiepinMainContentRoot() : getMainContentRoot();
-  const jdSelectors = isLiepin ? LIEPIN_JD_SELECTORS : JD_SELECTORS;
+  const anchors = isLiepin ? LIEPIN_JD_ANCHORS
+    : isYupao ? ['岗位职责', '任职要求', '职位详情']
+    : JD_ANCHORS;
+  const mainRoot = isLiepin ? getLiepinMainContentRoot()
+    : isYupao ? findBestJDContainer(YUPAO_MAIN_CONTENT_SELECTORS, /岗位职责|任职要求/)
+    : getMainContentRoot();
+  const jdSelectors = isLiepin ? LIEPIN_JD_SELECTORS
+    : isYupao ? YUPAO_MAIN_CONTENT_SELECTORS
+    : JD_SELECTORS;
 
   for (const a of anchors) {
     const inText = bodyText.includes(a);
@@ -819,7 +993,9 @@ function buildDiagnostics() {
     } catch (e) { /* ignore */ }
   }
 
-  const sample = isLiepin ? (tryExtractLiepinJD() || '') : (tryExtractZhipinJD() || '');
+  const sample = isLiepin ? (tryExtractLiepinJD() || '')
+    : isYupao ? (tryExtractYupaoJD() || '')
+    : (tryExtractZhipinJD() || '');
   lines.push(`提取样例长度: ${sample ? sample.length : '无提取结果'}`);
 
   // body 前 600 字（剔除多余空行）
@@ -848,6 +1024,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           || extractLiepinJD()
           || '';
         if (jdText && looksLikeLiepinNav(jdText)) jdText = '';
+      } else if (/yupao\.com/.test(url)) {
+        jdText = (await waitForYupaoJobDesc(6000)) || extractYupaoJD() || '';
+        if (jdText && looksLikeYupaoNav(jdText)) jdText = '';
       } else {
         jdText = extractGenericJD();
       }
